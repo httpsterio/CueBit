@@ -83,6 +83,9 @@
       <None Update="Content\poyta.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Content\pressstart2p.ttf">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Update="Content\taskut.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

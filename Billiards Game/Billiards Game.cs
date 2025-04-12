@@ -142,6 +142,7 @@ namespace Billiards_Game {
                 {
                     Sfx.PlayFail();
                     MessageDisplay.Add("Valkoinen taskussa");
+                    MessageDisplay.TextColor = Color.Black;
                     pointCounter.Value -= 5;
 
                     // Pysäyttää valkoisen pallon ja siirtää sen ruudun ulkopuolelle (jotta pallo ei liiku kun se palautetaan=
@@ -231,11 +232,11 @@ namespace Billiards_Game {
 
             Label pointLabel = new Label
             {
-                Y = Screen.Bottom + 30,
+                Y = Screen.Bottom + 80,
                 X = 0,
+                Font = LoadFont("pressstart2p.ttf"),
                 TextColor = Color.Black,
-                Color = Color.White,
-                Title = "Pisteesi "
+                Title = "Score: "
             };
             pointLabel.BindTo(pointCounter);
             Add(pointLabel);
@@ -348,6 +349,7 @@ namespace Billiards_Game {
             double hitPowerMax = 10000;
             const double powerIncrement = 42.4;
 
+            Mouse.IsCursorVisible = false;
             // Sitoo pelimailan hiireen ja liikuttaa pelimailaa SiirraMaila-ohjelman avulla
             Mouse.ListenMovement(0.1, MoveCue, "Liikuta mailaa hiirellä", cue, whiteBall);
 
@@ -358,17 +360,10 @@ namespace Billiards_Game {
                 if (hitPower <= hitPowerMax)
                 {
                     hitPower += powerIncrement;
-    #if DEBUG
-                    MessageDisplay.Add(hitPower.ToString());
-    #endif
-
                 }
                 else
                 {
                     hitPower = hitPowerMax;
-    #if DEBUG
-                    MessageDisplay.Add(hitPower.ToString());
-    #endif
                 }
             }, null);
 
@@ -620,6 +615,7 @@ namespace Billiards_Game {
         public void Fail()
         {
             MessageDisplay.Add("Hävisit pelin! Paina R-näppäintä aloittaaksesi alusta");
+            MessageDisplay.TextColor = Color.Black;
             Sfx.StopMusic();
             Sfx.PlayGameOver();
             Pause();
