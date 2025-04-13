@@ -251,6 +251,7 @@ namespace Billiards_Game {
             // messagedisplay defaults
             MessageDisplay.BackgroundColor = Color.Transparent;
             MessageDisplay.TextColor = new Color(253,179,32);
+            MessageDisplay.MessageTime = TimeSpan.FromSeconds(10);
             // Initialize the messageLabel
             messageLabel = new Label
             {
@@ -269,7 +270,7 @@ namespace Billiards_Game {
                 X = 0,
                 Text = "a silly game by httpster.io",
                 Font = LoadFont("pressstart2p.ttf"),
-                TextColor = new Color(241, 139, 47)
+                TextColor = new Color(253, 179, 32)
             };
             creditsLabel.Font.Size = 20;
             Add(creditsLabel);
@@ -442,7 +443,7 @@ namespace Billiards_Game {
             // Kun hiiren vasen painike on painettu kerran (mutta ei vielä päästetty irti) toistetaan ääniklippiä
             Mouse.Listen(MouseButton.Left, ButtonState.Pressed, delegate ()
             {
-                if (!IsPaused) // Check if the game is not paused  
+                if (!IsPaused & CANHIT) // Check if the game is not paused  
                 {
                     Sfx.PlayPower();
                 }
@@ -564,12 +565,12 @@ namespace Billiards_Game {
             // Lista vektoreista sekä kallistuskulmista joista luodaan taskuja
             var pocketList = new List<(Vector, double)>
             {
-                (new Vector(-370, 194), 45), // vasen yläkulma
-                (new Vector(0, 218), 0), // ylä keski
-                (new Vector(370, 194), -45), // oikea yläkulma
-                (new Vector(-370, -194), -45), // vasen alakulma
-                (new Vector(0, -218), 0), // ala keski
-                (new Vector(370, -194), 45) // oikea alakulma
+                (new Vector(-370, 194), 45), // left upper corner
+                (new Vector(0, 220), 0), // top center
+                (new Vector(370, 194), -45), // right upper corner
+                (new Vector(-370, -194), -45), // left lower corner
+                (new Vector(0, -220), 0), // lower center
+                (new Vector(370, -194), 45) // right lower corner
             };
 
             // Iteroi listan läpi ja välittää listan arvot parametrina funktiolle joka luo taskut törmäyksiä varten 
