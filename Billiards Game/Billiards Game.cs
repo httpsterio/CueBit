@@ -248,6 +248,9 @@ namespace Billiards_Game {
 
         void CreateInfoMessage()
         {
+            // messagedisplay defaults
+            MessageDisplay.BackgroundColor = Color.Transparent;
+            MessageDisplay.TextColor = new Color(253,179,32);
             // Initialize the messageLabel
             messageLabel = new Label
             {
@@ -420,7 +423,7 @@ namespace Billiards_Game {
             // Hide mouse cursor
             Mouse.IsCursorVisible = false;
             // Sitoo pelimailan hiireen ja liikuttaa pelimailaa SiirraMaila-ohjelman avulla
-            Mouse.ListenMovement(0.1, MoveCue, "Liikuta mailaa hiirellä", cue, whiteBall);
+            Mouse.ListenMovement(0.1, MoveCue, "Move the cue with the mouse", cue, whiteBall);
 
             // Kun hiiren vasen painike on painettuna, kasvattaa hitPoweria powerIncrementin verran 60 kertaa sekunnissa.
             // powerIncrementin arvo on siis (((hitPowerMax - hitPowerDefault) / power.wavin kesto) / 60 FPS)
@@ -437,8 +440,12 @@ namespace Billiards_Game {
             }, null);
 
             // Kun hiiren vasen painike on painettu kerran (mutta ei vielä päästetty irti) toistetaan ääniklippiä
-            Mouse.Listen(MouseButton.Left, ButtonState.Pressed, delegate () {
-                Sfx.PlayPower();
+            Mouse.Listen(MouseButton.Left, ButtonState.Pressed, delegate ()
+            {
+                if (!IsPaused) // Check if the game is not paused  
+                {
+                    Sfx.PlayPower();
+                }
             }, null);
 
             // Kun hiiren painikkeesta on päästetty irti, pysäyttää ääniklipin ja välittää voimakertoimen arvon LyoPalloa-funktiolle. Sen jälkeen voimakerroin asetetaan takaisin oletusarvoonsa.
@@ -447,20 +454,33 @@ namespace Billiards_Game {
                 HitBall(whiteBall, cue, ref hitPower);
                 hitPower = hitPowerDefault;
 
-            }, "Lyö palloa painamalla hiiren vasenta nappia. Mitä pidempään pidät nappia pohjassa, sen kovempaa lyöt.");
+            }, "Hit by holding the left mouse button. The longer you hold, the harder you hit.");
 
 
             // Sitoo Esc-näppäimen pelin sulkemiseen
-            Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
+            Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Exit the game");
 
             // Sitoo F1-painikkeen ohjetekstin näyttämiseen
-            Keyboard.Listen(Key.F1, ButtonState.Down, ShowControlHelp, "Näytä näppäimet");
+            Keyboard.Listen(Key.F1, ButtonState.Pressed, ShowControlHelp, "Show controls");
 
             // Sitoo R-näppäimen pelin uudelleenkäynnistykseen ja suorittaa Reset-aliohjelman.
             Keyboard.Listen(Key.R, ButtonState.Pressed, delegate ()
             {
                 Reset(cue, whiteBall);
-            }, "Aloita alusta");
+            }, "Restart");
+#if DEBUG
+            Keyboard.Listen(Key.T, ButtonState.Pressed, delegate ()
+            {
+                Win();
+            }, "Win");
+#endif
+
+#if DEBUG
+            Keyboard.Listen(Key.Y, ButtonState.Pressed, delegate ()
+            {
+                Fail();
+            }, "Fail");
+#endif
 
         }
 
@@ -494,7 +514,7 @@ namespace Billiards_Game {
             // Asettaa peliobjektille kentän kuvan ja asettaa sen tasolle -1 (pallojen alle)
             GameObject tableBorders = new GameObject(784, 448)
             {
-                Image = LoadImage("poyta"),
+                Image = LoadImage("table"),
                 Shape = Shape.Rectangle,
                 Position = new Vector(0, 0)
             };
@@ -503,7 +523,7 @@ namespace Billiards_Game {
             // Asettaa taskujen kuvan gameobjektille ja lisää sen tasolle -2 (laitojen ja pallojen alle)
             GameObject pockets = new GameObject(784, 448)
             {
-                Image = LoadImage("taskut"),
+                Image = LoadImage("pockets"),
                 Shape = Shape.Rectangle,
                 Position = new Vector(0, 0)
             };
@@ -544,12 +564,12 @@ namespace Billiards_Game {
             // Lista vektoreista sekä kallistuskulmista joista luodaan taskuja
             var pocketList = new List<(Vector, double)>
             {
-                (new Vector(-372, 196), 45),
-                (new Vector(372, 196), -45),
-                (new Vector(-372, -196), -45),
-                (new Vector(372, -196), 45),
-                (new Vector(0, 224), 0),
-                (new Vector(0, -224), 0)
+                (new Vector(-370, 194), 45), // vasen yläkulma
+                (new Vector(0, 218), 0), // ylä keski
+                (new Vector(370, 194), -45), // oikea yläkulma
+                (new Vector(-370, -194), -45), // vasen alakulma
+                (new Vector(0, -218), 0), // ala keski
+                (new Vector(370, -194), 45) // oikea alakulma
             };
 
             // Iteroi listan läpi ja välittää listan arvot parametrina funktiolle joka luo taskut törmäyksiä varten 
@@ -614,7 +634,7 @@ namespace Billiards_Game {
             Vector paikkaruudulla = Mouse.PositionOnScreen;
             cue.Color = Color.Transparent;
             cue.Shape = Shape.Rectangle;
-            cue.Image = LoadImage("maila");
+            cue.Image = LoadImage("cue");
             cue.X = paikkaruudulla.X;
             cue.Y = paikkaruudulla.Y;
             cue.Angle = Angle.FromDegrees(0);
@@ -697,7 +717,8 @@ namespace Billiards_Game {
         {
             Sfx.StopMusic();
             Sfx.PlayYouWin();
-            string WinMessage = "Voitto! Pisteesi ovat" + pointCounter.Value.ToString();
+            Pause();
+            string WinMessage = "Victory! Your score is " + pointCounter.Value.ToString();
             UpdateInfoMessage(WinMessage, 5);
         }
 
@@ -735,7 +756,7 @@ namespace Billiards_Game {
             RemoveCollisionHandlers();
             Sfx.StopMusic();
             // Suorittaa uusiksi aliohjelmat, jotka tuhottiin ClearAllilla.
-            Init(cue, whiteBall);
+            Begin();
         }
     }
 }

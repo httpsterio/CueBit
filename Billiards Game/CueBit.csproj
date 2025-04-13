@@ -5,16 +5,31 @@
         <TargetFramework>net8.0</TargetFramework>
     </PropertyGroup>
 
+
+	<PropertyGroup>
+		<AssemblyTitle>CueBit - httpster.io</AssemblyTitle>
+	</PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Jypeli.NET" Version="11.*" />
         <PackageReference Include="Jypeli.FarseerPhysics.NET" Version="2.*" />
     </ItemGroup>
+	
+	<PropertyGroup>
+		<ApplicationIcon>Content\cuebit.ico</ApplicationIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="Content\cuebit.ico" />
+	</ItemGroup>
 
     <ItemGroup>
       <None Update="Content\ball.wav">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Content\bgm.wav">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Content\cuebit.ico">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Content\fail.wav">
@@ -32,7 +47,7 @@
       <None Update="Content\intro.wav">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Content\maila.png">
+      <None Update="Content\cue.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Content\p1.png">
@@ -83,13 +98,13 @@
       <None Update="Content\power.wav">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Content\poyta.png">
+      <None Update="Content\table.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Content\pressstart2p.ttf">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Content\taskut.png">
+      <None Update="Content\pockets.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Content\valkoinen.png">
