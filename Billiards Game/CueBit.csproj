@@ -26,6 +26,9 @@
       <None Update="Content\gameover.wav">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Content\icon.ico">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Update="Content\intro.wav">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
