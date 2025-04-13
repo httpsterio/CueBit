@@ -71,18 +71,27 @@ namespace Billiards_Game {
             });
 
 
-            // Asettaa CANHIT-booleanin tilaa riippuen pallojen velocitysta
             void BallVelocity()
             {
-                // Tarkistaa valkoisen pallon velocityn
+                // Check if the white ball is moving
                 if (Math.Abs(whiteBall.Velocity.X) > 1 || Math.Abs(whiteBall.Velocity.Y) > 1)
                 {
                     CanHit = false;
+                    return; // Exit early if the white ball is moving
                 }
-                else
+
+                // Check if any ball in the game has a velocity above the threshold
+                foreach (var ball in BallsInGame)
                 {
-                    CanHit = true;
+                    if (Math.Abs(ball.Velocity.X) > 1 || Math.Abs(ball.Velocity.Y) > 1)
+                    {
+                        CanHit = false;
+                        return; // Exit early if any ball is moving
+                    }
                 }
+
+                // If no balls are moving, allow hitting
+                CanHit = true;
             }
         }
 
@@ -704,7 +713,7 @@ namespace Billiards_Game {
         /// </summary>
         public void Fail()
         {
-            UpdateInfoMessage("You lost the game! Press the R key to reset the game", 0);
+            UpdateInfoMessage("Fail!! Press the R key to try again", 0);
             Sfx.StopMusic();
             Sfx.PlayGameOver();
             Pause();
