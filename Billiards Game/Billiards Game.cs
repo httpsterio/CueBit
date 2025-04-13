@@ -1,11 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Jypeli;
-using Jypeli.Assets;
-using Jypeli.Controls;
-using Jypeli.Widgets;
 
 
 /// @author  Sami Singh
@@ -56,6 +51,8 @@ namespace Billiards_Game {
             BindControls(cue, whiteBall);
             AddBalls(BallInitList());
             CreatePointCounter();
+            CreateInfoMessage();
+            CreateCredits();
             Collisions(whiteBall, BallsInGame);
             Updater(whiteBall);
             Sfx.PlayMusic();
@@ -65,7 +62,7 @@ namespace Billiards_Game {
         /// <summary>
         /// 60 FPS päivittyvä ajastin jossa voi suorittaa jatkuvasti tarkistettavia asioita.
         /// </summary>
-        /// <param name="pallo">Vataanottaa valkoisen pelipallon</param>
+        /// <param name="pallo">Vastaanottaa valkoisen pelipallon</param>
         private void Updater(PhysicsObject whiteBall)
         {
             Timer.CreateAndStart(0.016, delegate {
@@ -141,8 +138,7 @@ namespace Billiards_Game {
                 if (collisionTarget.Tag.ToString() == "pocketCollision")
                 {
                     Sfx.PlayFail();
-                    MessageDisplay.Add("Valkoinen taskussa");
-                    MessageDisplay.TextColor = Color.Black;
+                    UpdateInfoMessage("White was pocketed, -5 points", 5);
                     pointCounter.Value -= 5;
 
                     // Pysäyttää valkoisen pallon ja siirtää sen ruudun ulkopuolelle (jotta pallo ei liiku kun se palautetaan=
@@ -232,15 +228,87 @@ namespace Billiards_Game {
 
             Label pointLabel = new Label
             {
-                Y = Screen.Bottom + 80,
+                Y = Screen.Bottom + 160,
                 X = 0,
+                TextColor = new Color(253, 179, 32),
                 Font = LoadFont("pressstart2p.ttf"),
-                TextColor = Color.Black,
                 Title = "Score: "
             };
             pointLabel.BindTo(pointCounter);
             Add(pointLabel);
         }
+
+        /// <summary>
+        /// CreateInfoMessage takes no params, initializes the label
+        /// Used for timed messages on the top of the screen
+        /// </summary>
+
+        // Declare messageLabel as a class-level field
+        private Label messageLabel;
+
+        void CreateInfoMessage()
+        {
+            // Initialize the messageLabel
+            messageLabel = new Label
+            {
+                Y = Screen.Top - 80,
+                X = 0,
+                Font = LoadFont("pressstart2p.ttf"),
+                TextColor = new Color(253,179,32),
+            };
+            Add(messageLabel);
+        }
+        void CreateCredits()
+        {
+            Label creditsLabel = new Label
+            {
+                Y = Screen.Bottom + 40,
+                X = 0,
+                Text = "a silly game by httpster.io",
+                Font = LoadFont("pressstart2p.ttf"),
+                TextColor = new Color(241, 139, 47)
+            };
+            creditsLabel.Font.Size = 20;
+            Add(creditsLabel);
+        }
+
+
+        /// <summary>
+        /// @params str message = message to be displayed
+        /// @params int TTL = time to display message in seconds
+        /// Calls messageLabel with set message and time.
+        /// Gets set to empty string after TTL unless value is 0 or empty
+        /// </summary>
+        /// 
+        void UpdateInfoMessage(string message, int TTL = 0)
+        {
+            // Ensure messageLabel is not null before accessing it  
+            if (messageLabel != null)
+            {
+                messageLabel.Text = message;
+            }
+
+            // Create a timer to clear the message after TTL milliseconds  
+            if (TTL > 0)
+            {
+                Timer messageTimer = new Timer
+                {
+                    Interval = TTL
+                };
+
+                messageTimer.Timeout += () =>
+                {
+                    if (messageLabel != null)
+                    {
+                        messageLabel.Text = string.Empty;
+                    }
+                    messageTimer.Stop();
+                };
+
+                messageTimer.Start();
+            }
+        }
+
 
         /// <summary>
         /// Alustaa pallojen luomisen generoimalla listasta joukon fysiikkaobjekteja antaen niillä sijainnin, mutta ei lisää peliin vielä
@@ -349,6 +417,7 @@ namespace Billiards_Game {
             double hitPowerMax = 10000;
             const double powerIncrement = 42.4;
 
+            // Hide mouse cursor
             Mouse.IsCursorVisible = false;
             // Sitoo pelimailan hiireen ja liikuttaa pelimailaa SiirraMaila-ohjelman avulla
             Mouse.ListenMovement(0.1, MoveCue, "Liikuta mailaa hiirellä", cue, whiteBall);
@@ -614,8 +683,7 @@ namespace Billiards_Game {
         /// </summary>
         public void Fail()
         {
-            MessageDisplay.Add("Hävisit pelin! Paina R-näppäintä aloittaaksesi alusta");
-            MessageDisplay.TextColor = Color.Black;
+            UpdateInfoMessage("You lost the game! Press the R key to reset the game", 0);
             Sfx.StopMusic();
             Sfx.PlayGameOver();
             Pause();
@@ -629,7 +697,8 @@ namespace Billiards_Game {
         {
             Sfx.StopMusic();
             Sfx.PlayYouWin();
-            MessageDisplay.Add("Voitto! Pisteesi ovat" + pointCounter.Value.ToString());
+            string WinMessage = "Voitto! Pisteesi ovat" + pointCounter.Value.ToString();
+            UpdateInfoMessage(WinMessage, 5);
         }
 
         /// <summary>
@@ -648,6 +717,8 @@ namespace Billiards_Game {
             Updater(whiteBall);
             Sfx.PlayMusic();
             CreatePointCounter();
+            CreateInfoMessage();
+            CreateCredits();
             BallsInGame.ForEach(ball => ball.Velocity = new Vector(0, 0));
         }
 
