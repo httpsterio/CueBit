@@ -517,6 +517,7 @@ namespace Billiards_Game {
         {
             // Asettaa ikkunan koon, laittaa pelille laidat ja zoomaa pelin näkyviin elementteihin.
             SetWindowSize(1280, 1024);
+            CenterWindow();
             Level.CreateBorders();
             Level.BackgroundColor = new Color(4, 64, 72);
             Camera.ZoomToLevel();
