@@ -1,4 +1,7 @@
 # CueBit
+
+![screenshot](https://github.com/httpsterio/CueBit/blob/main/CueBit screenshot.jpg?raw=true)
+
 CueBit is an 8bit inspired pool game for Win/Mac/Linux built with [Jypeli 11.3.7](https://github.com/Jypeli-JYU/Jypeli) and .NET 8.0.15.
 
 It was created in 2020 as my course final project, which also explains the slightly messy code. I hope you have fun with it though!
@@ -61,3 +64,9 @@ and then run the build script
 ```
 
 the CueBit.app should be created in /release/
+
+In case the app file refueses to launch, either ctrl + right-click the app and click open or use:
+```bash
+codesign --force --deep --sign - /path/to/CueBit.app
+xattr -rd com.apple.quarantine /path/to/CueBit.app
+```
