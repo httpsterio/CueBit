@@ -1,6 +1,6 @@
 # CueBit
 
-![screenshot](https://github.com/httpsterio/CueBit/blob/main/CueBit screenshot.jpg?raw=true)
+![screenshot](https://github.com/httpsterio/CueBit/blob/main/CueBit%20screenshot.jpg?raw=true)
 
 CueBit is an 8bit inspired pool game for Win/Mac/Linux built with [Jypeli 11.3.7](https://github.com/Jypeli-JYU/Jypeli) and .NET 8.0.15.
 
