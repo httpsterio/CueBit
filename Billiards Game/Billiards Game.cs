@@ -65,36 +65,86 @@ namespace Billiards_Game {
         /// <param name="pallo">Vastaanottaa valkoisen pelipallon</param>
         private void Updater(PhysicsObject whiteBall)
         {
-            Timer.CreateAndStart(0.016, delegate {
-                BallVelocity();
+            Timer stuckTimer = null;
+            bool timerStarted = false;
 
-            });
-
+            Timer.CreateAndStart(0.3, delegate { BallVelocity(); });
 
             void BallVelocity()
             {
+                bool anyBallMoving = false;
+
                 // Check if the white ball is moving
                 if (Math.Abs(whiteBall.Velocity.X) > 1 || Math.Abs(whiteBall.Velocity.Y) > 1)
                 {
-                    CanHit = false;
-                    return; // Exit early if the white ball is moving
+                    anyBallMoving = true;
                 }
 
-                // Check if any ball in the game has a velocity above the threshold
+                // Check if any other ball in the game has a velocity above the threshold
                 foreach (var ball in BallsInGame)
                 {
                     if (Math.Abs(ball.Velocity.X) > 1 || Math.Abs(ball.Velocity.Y) > 1)
                     {
-                        CanHit = false;
-                        return; // Exit early if any ball is moving
+                        anyBallMoving = true;
+#if DEBUG
+                        MessageDisplay.Add("Ball is moving");
+                        MessageDisplay.MaxMessageCount = 5;
+                        MessageDisplay.MessageTime = new TimeSpan(0, 0, 1);
+#endif
+                        break; // Exit the loop after finding the first moving ball
                     }
                 }
 
-                // If no balls are moving, allow hitting
-                CanHit = true;
+                // Determine if player can hit based on ball movement
+                bool shouldBeAbleToHit = !anyBallMoving;
+
+                // If balls are moving (can't hit) and timer hasn't started yet, start the 10-second timer
+                if (!shouldBeAbleToHit && !timerStarted)
+                {
+#if DEBUG
+                    MessageDisplay.Add("Starting 10-second timer");
+#endif
+
+                    timerStarted = true;
+                    stuckTimer = Timer.CreateAndStart(10, delegate
+                    {
+                        // After 10 seconds, force CanHit to true regardless of ball movement
+                        CanHit = true;
+                        timerStarted = false;
+
+                        // Set all ball velocities to zero
+                        whiteBall.Velocity = new Vector(0, 0);
+                        BallsInGame.ForEach(ball => ball.Velocity = new Vector(0, 0));
+
+#if DEBUG
+                        MessageDisplay.Add("10 seconds elapsed - Forced CanHit to true and stopped all balls");
+#endif
+                    });
+                }
+                // If balls have stopped moving (can hit), cancel the timer
+                else if (shouldBeAbleToHit && timerStarted)
+                {
+#if DEBUG
+                    MessageDisplay.Add("Balls stopped - Canceling timer");
+#endif
+
+                    stuckTimer.Stop();
+                    timerStarted = false;
+                }
+
+                // Set CanHit based on ball movement, unless the timer has forced it true
+                if (!timerStarted || !shouldBeAbleToHit)
+                {
+                    CanHit = shouldBeAbleToHit;
+                }
+
+#if DEBUG
+                MessageDisplay.Add("Can hit: " + CanHit);
+#endif
             }
         }
-
+        
+        
         /// <summary>
         /// Julkinen boolean jolla tarkistetaan voiko pelaaja lyödä
         /// </summary>
@@ -196,7 +246,7 @@ namespace Billiards_Game {
 
                     // Oikeasti? Enkö voi lambdalla poistaa suoraan?
                     // Poistaa väliaikaisesta listasta pallon tagin osoittamasta indeksistä
-                    removeBallList.RemoveAt(removeBallList.FindIndex(ball => ball.Tag == collidingBall.Tag));
+                    BallsInGame.Remove(collidingBall);
 
                     // Vie uuden listan yleiselle listamuuttujalle
                     BallsInGame = removeBallList;
@@ -732,27 +782,7 @@ namespace Billiards_Game {
             string WinMessage = "Victory! Your score is " + pointCounter.Value.ToString();
             UpdateInfoMessage(WinMessage, 5);
         }
-
-        /// <summary>
-        /// Alustaa pelin suorittamalla tarpeelliset funktiot resetin jälkeen.
-        /// </summary>
-        /// <param name="maila">Beginnissä alustettu maila</param>
-        /// <param name="valkoinenPallo">Beginissä alustettu pallo</param>
-        public void Init(PhysicsObject cue, PhysicsObject whiteBall)
-        {
-            CreateTable();
-            CreateWhiteBall(whiteBall);
-            CreateCue(cue);
-            BindControls(cue, whiteBall);
-            AddBalls(BallInitList());
-            Collisions(whiteBall, BallsInGame);
-            Updater(whiteBall);
-            Sfx.PlayMusic();
-            CreatePointCounter();
-            CreateInfoMessage();
-            CreateCredits();
-            BallsInGame.ForEach(ball => ball.Velocity = new Vector(0, 0));
-        }
+        
 
         /// <summary>
         /// Uudelleenkäynnistää pelin, pysäyttää musiikin ja suorittaa Init-funktion
@@ -762,11 +792,15 @@ namespace Billiards_Game {
         public void Reset(PhysicsObject cue, PhysicsObject whiteBall)
         {
             // Asettaa jokaisen pallon velocityn nollaan, jotta resetin jälkeen CanHit päivittyy oikein.
-            BallsInGame.ForEach(ball => ball.Velocity = new Vector(0, 0));
-            ClearAll();
+            BallsInGame.ForEach(ball => 
+            {
+                ball.Velocity = new Vector(0, 0);
+                ball.Destroy();
+            });
+            BallsInGame.Clear();
             RemoveCollisionHandlers();
             Sfx.StopMusic();
-            // Suorittaa uusiksi aliohjelmat, jotka tuhottiin ClearAllilla.
+            ClearAll();
             Begin();
         }
     }
