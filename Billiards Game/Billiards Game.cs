@@ -260,8 +260,8 @@ namespace Billiards_Game {
                     // Poistaa väliaikaisesta listasta pallon tagin osoittamasta indeksistä
                     BallsInGame.Remove(collidingBall);
 
-                    // Vie uuden listan yleiselle listamuuttujalle
-                    BallsInGame = removeBallList;
+                    // // Vie uuden listan yleiselle listamuuttujalle
+                    // BallsInGame = removeBallList;
 
                     // Asetetaan pussitetun pallon velocity nollaan 
                     collidingBall.Velocity = new Vector(0, 0);
