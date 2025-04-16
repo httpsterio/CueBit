@@ -433,8 +433,9 @@ namespace Billiards_Game {
                     Shape = Shape.Circle,
                     Color = Color.Transparent,
                     Image = LoadImage(nimi),
-                    LinearDamping = 0.98,
-                    Mass = 0.04
+                    LinearDamping = 0.95,
+                    AngularDamping = 0.95,
+                    Mass = 0.06
                 };
                 return ball;
             }
@@ -789,7 +790,7 @@ namespace Billiards_Game {
         /// </summary>
         /// <param name="cue">Beginissä alustettu maila</param>
         /// <param name="whiteBall">Beginissä alustettu valkoinen pallo</param>
-        public void Reset(PhysicsObject cue, PhysicsObject whiteBall)
+        private void Reset(PhysicsObject cue, PhysicsObject whiteBall)
         {
             // Asettaa jokaisen pallon velocityn nollaan, jotta resetin jälkeen CanHit päivittyy oikein.
             BallsInGame.ForEach(ball => 
