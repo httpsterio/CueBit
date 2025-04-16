@@ -86,11 +86,11 @@ namespace Billiards_Game {
                     if (Math.Abs(ball.Velocity.X) > 1 || Math.Abs(ball.Velocity.Y) > 1)
                     {
                         anyBallMoving = true;
-#if DEBUG
+        #if DEBUG
                         MessageDisplay.Add("Ball is moving");
                         MessageDisplay.MaxMessageCount = 5;
                         MessageDisplay.MessageTime = new TimeSpan(0, 0, 1);
-#endif
+        #endif
                         break; // Exit the loop after finding the first moving ball
                     }
                 }
@@ -101,46 +101,58 @@ namespace Billiards_Game {
                 // If balls are moving (can't hit) and timer hasn't started yet, start the 10-second timer
                 if (!shouldBeAbleToHit && !timerStarted)
                 {
-#if DEBUG
+        #if DEBUG
                     MessageDisplay.Add("Starting 10-second timer");
-#endif
+        #endif
 
                     timerStarted = true;
                     stuckTimer = Timer.CreateAndStart(10, delegate
                     {
-                        // After 10 seconds, force CanHit to true regardless of ball movement
-                        CanHit = true;
-                        timerStarted = false;
+                        // [CHANGE] Before forcing the ball to stop, check if it's truly "stuck"
+                        if (Math.Abs(whiteBall.Velocity.X) <= 1 && Math.Abs(whiteBall.Velocity.Y) <= 1)
+                        {
+                            // After 10 seconds and still low velocity, force CanHit true and stop all balls
+                            CanHit = true;
+                            timerStarted = false;
+                            whiteBall.Velocity = new Vector(0, 0);
+                            BallsInGame.ForEach(ball => ball.Velocity = new Vector(0, 0));
 
-                        // Set all ball velocities to zero
-                        whiteBall.Velocity = new Vector(0, 0);
-                        BallsInGame.ForEach(ball => ball.Velocity = new Vector(0, 0));
-
-#if DEBUG
-                        MessageDisplay.Add("10 seconds elapsed - Forced CanHit to true and stopped all balls");
-#endif
+        #if DEBUG
+                            MessageDisplay.Add("10 seconds elapsed - Forced CanHit to true and stopped all balls");
+        #endif
+                        }
+                        else
+                        {
+                            // [CHANGE] If the ball is still moving fast, it means the shot was charged/hit;
+                            // cancel the timer so we do not force stop the ball.
+        #if DEBUG
+                            MessageDisplay.Add("10 seconds elapsed but ball still moving, timer canceled");
+        #endif
+                            stuckTimer.Stop();
+                            timerStarted = false;
+                        }
                     });
                 }
                 // If balls have stopped moving (can hit), cancel the timer
                 else if (shouldBeAbleToHit && timerStarted)
                 {
-#if DEBUG
+        #if DEBUG
                     MessageDisplay.Add("Balls stopped - Canceling timer");
-#endif
+        #endif
 
                     stuckTimer.Stop();
                     timerStarted = false;
                 }
 
-                // Set CanHit based on ball movement, unless the timer has forced it true
+                // Set CanHit based on ball movement, unless the timer is running and hasn't forced a change.
                 if (!timerStarted || !shouldBeAbleToHit)
                 {
                     CanHit = shouldBeAbleToHit;
                 }
 
-#if DEBUG
+        #if DEBUG
                 MessageDisplay.Add("Can hit: " + CanHit);
-#endif
+        #endif
             }
         }
         
